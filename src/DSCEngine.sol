@@ -296,12 +296,19 @@ contract DSCEngine is ReentrancyGuard {
     function _healthFactor(address user) private view returns (uint256) {
         // total_DSC_MInted
         // total Collateral VALUE
-        (uint256 totalDscMinted, uint256 collateralValueInUsd) = _getAccountInformation(user);
-        uint256 collateralAdjustedForThreshold = (collateralValueInUsd * LIQUIDATION_THRESHOLD) / LIQUIDATION_PRECISION;
-        // $1000ETH/ 100Dsc
-        // 1000 * 50 = 50000/100 = (500/100) = 5
+        // (uint256 totalDscMinted, uint256 collateralValueInUsd) = _getAccountInformation(user);
+        // uint256 collateralAdjustedForThreshold = (collateralValueInUsd * LIQUIDATION_THRESHOLD) / LIQUIDATION_PRECISION;
+        // // $1000ETH/ 100Dsc
+        // // 1000 * 50 = 50000/100 = (500/100) = 5
 
-        return (collateralAdjustedForThreshold * LIQUIDATION_PRECISION) / totalDscMinted;
+        // return (collateralAdjustedForThreshold * LIQUIDATION_PRECISION) / totalDscMinted;
+        (uint256 totalDscMinted, uint256 collateralValueInUsd) = _getAccountInformation(user);
+    
+        if (totalDscMinted == 0) return type(uint256).max; // Safe default for no debt
+        
+        uint256 collateralAdjustedForThreshold = (collateralValueInUsd * LIQUIDATION_THRESHOLD);
+        return (collateralAdjustedForThreshold * PRECISION) / (totalDscMinted * LIQUIDATION_PRECISION);
+       
     }
 
     // 1. Check health factor (do they have enough collateral)
