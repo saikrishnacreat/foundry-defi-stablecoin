@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {Test} from "forge-std/Test.sol";
+import {Test,console} from "forge-std/Test.sol";
 import {StdInvariant} from "forge-std/StdInvariant.sol";
 import {DeployDSC} from "../../script/DeployDSC.s.sol";
 import {DSCEngine} from "../../src/DSCEngine.sol";
@@ -47,9 +47,28 @@ contract Invariants is StdInvariant, Test {
         uint256 wethValue = dsce.getUsdValue(weth,totalWethDeposited);
         uint256 wbtcValue = dsce.getUsdValue(wbtc, totalBtcDeposited);
 
+        console.log("weth value: ", wethValue);
+        console.log("wbtc value: ", wbtcValue);
+        console.log("total supply: ",totalSupply);
+        console.log("Times mint called : ", handler.timesMintIsCalled());
+
         assert(wethValue+wbtcValue>=totalSupply);
 
+    }
 
+    function invariant_gettersShouldNotRevert() public view {
+        //  forge inspect DSCEngine methods
+        dsce.getAdditionalFeedPrecision();
+        dsce.getCollateralTokens();
+        dsce.getLiquidationBonus();
+        dsce.getLiquidationThreshold();
+        dsce.getMinHealthFactor();
+        dsce.getPrecision();
+        dsce.getDsc();
+        // dsce.getTokenAmountFromUsd();
+        // dsce.getCollateralTokenPriceFeed();
+        // dsce.getCollateralBalanceOfUser();
+        // getAccountCollateralValue();
     }
 
 }
