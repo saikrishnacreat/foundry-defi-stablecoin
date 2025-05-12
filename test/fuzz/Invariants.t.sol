@@ -8,6 +8,7 @@ import {DSCEngine} from "../../src/DSCEngine.sol";
 import {DecentralizedStableCoin} from "../../src/DecentralizedStableCoin.sol";
 import {HelperConfig} from "../../script/HelperConfig.s.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {Handler} from "./Handler.t.sol";
 
 
 contract Invariants is StdInvariant, Test {
@@ -17,12 +18,24 @@ contract Invariants is StdInvariant, Test {
     HelperConfig config;
     address weth;
     address wbtc;
+    Handler handler;
 
     function setUp() external {
         deployer = new DeployDSC();
         (dsc,dsce, config) = deployer.run();
         (,,weth,wbtc,) = config.activeNetworkConfig();
-        targetContract(address(dsce));
+        // targetContract(address(dsce));
+        /*
+        In Foundry (a smart contract development framework), targetContract() is a function provided by the StdInvariant contract from the forge-std library. It is used specifically when writing invariant tests.
+        Purpose of targetContract()
+        It tells Foundry's fuzzing engine (used during invariant testing) which contract to target for calling functions during fuzz testing.
+
+        In simpler terms:
+        You are testing for conditions that must always hold true (invariants), regardless of what sequence of function calls are made.
+        targetContract(address) informs the test engine to randomly call functions from the specified contract (Handler in your case), and then check that your defined invariants are always true.
+        */
+        handler = new Handler(dsce, dsc);
+        targetContract(address(handler));
     }
 
     function invariant_protocolMustHaveMoreValueThanTotalSupply() public view {
